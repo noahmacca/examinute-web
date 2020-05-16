@@ -1,12 +1,26 @@
-import { connect } from './node_modules/react-redux';
-import React from './node_modules/react';
+import { connect } from 'react-redux';
+import React from 'react';
+import styled from 'styled-components';
+
+const BorderBackground = styled.div`
+  background-color: #dcdde1;
+  min-height: 100vh;
+  font-size: 28px;
+  color: #353b48;
+  padding: 20px;
+`;
+
+const Button = styled.button`
+  background-color: magenta;
+`;
+
 
 const Component = ({ count, handleIncrementClick, handleDecrementClick }) => (
-  <div>
-    <h1>Helloworld React & Redux! {count}</h1>
-    <button onClick={handleDecrementClick}>Decrement</button>
-    <button onClick={handleIncrementClick}>Increment</button>
-  </div>
+  <BorderBackground>
+    <h1>Make those personal goals happen! {count}</h1>
+    <Button onClick={handleDecrementClick}>Up</Button>
+    <button onClick={handleIncrementClick}>Down</button>
+  </BorderBackground>
 );
 
 const mapStateToProps = state => {
