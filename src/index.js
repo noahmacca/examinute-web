@@ -3,12 +3,12 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux';
+import AppPage from './components/app/app'
 import { store } from './configure-store';
-import { Container } from './counter/container';
 
 const App = () => (
   <Provider store={store}>
-    <Container />
+    <AppPage />
   </Provider>
 );
 
