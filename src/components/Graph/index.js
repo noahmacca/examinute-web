@@ -1,29 +1,27 @@
 import { connect } from 'react-redux';
 import React from 'react';
 import styled from 'styled-components';
-import Graph from '../Graph';
 
-const BorderBackground = styled.div`
-  background-color: #dcdde1;
-  height: 100vh;
-  font-size: 12px;
-  color: #353b48;
-  padding: 20px;
+const Background = styled.div`
+  margin: 20px 0;
+  background-color: magenta;
+  width: 700px;
+  height: 300px;
+  padding: 10px;
 `;
 
 const Title = styled.div`
-  font-size: 18px;
-  font-weight: 200;
+  font-size: 14px;
+  font-weight: 400;
   margin-bottom: 20px;
 `;
 
 const Component = ({ count, handleIncrementClick, handleDecrementClick }) => (
-  <BorderBackground>
-    <Title>Super cool time project {count}</Title>
-    <button onClick={handleDecrementClick}>Down</button>
-    <button onClick={handleIncrementClick}>Up</button>
-    <Graph />
-  </BorderBackground>
+  <Background>
+    <Title>Graph 1: My data over time {count}</Title>
+    <button onClick={handleDecrementClick}>Up</button>
+    <button onClick={handleIncrementClick}>Down</button>
+  </Background>
 );
 
 const mapStateToProps = state => {
