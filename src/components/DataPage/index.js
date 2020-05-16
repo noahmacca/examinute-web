@@ -1,5 +1,5 @@
-import { connect } from 'react-redux';
-import React from 'react';
+import { connect } from './node_modules/react-redux';
+import React from './node_modules/react';
 
 const Component = ({ count, handleIncrementClick, handleDecrementClick }) => (
   <div>

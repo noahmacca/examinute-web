@@ -1,4 +1,4 @@
 import { createStore } from 'redux';
-import { countReducer } from './components/counter/reducer';
+import { dataPageReducer } from './components/DataPage/reducer';
 
-export const store = createStore(countReducer);
+export const store = createStore(dataPageReducer);
