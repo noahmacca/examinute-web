@@ -16,13 +16,33 @@ const Title = styled.div`
   margin-bottom: 20px;
 `;
 
-const Component = ({ count, handleIncrementClick, handleDecrementClick }) => (
-  <Background>
-    <Title>Graph 1: My data over time {count}</Title>
-    <button onClick={handleDecrementClick}>Up</button>
-    <button onClick={handleIncrementClick}>Down</button>
-  </Background>
-);
+class Graph extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {date: new Date()}
+  }
+
+  componentDidMount() {
+    console.log('mounted');
+    const url = 'http://p01-calendars.icloud.com/published/2/R7z0NY0Ja-eATwYdxvL0Cj5_0suPQs9_NokawvmHwpTuh04vObEvNZuL3-mYKubUqej19L4ZXAETnqZqlGuUb0bkBON4r9c7vUIHp7Ba2S0';
+    fetch(url)
+        .then(res => res.json())
+        .then((data) => {
+          console.log(data);
+          this.setState({ contacts: data })
+        })
+        .catch(console.log)
+  }
+
+  render() {
+    console.log('doing it', this.state.date.toLocaleDateString());
+    return (
+      <Background>
+        <Title>Graph 1: My data over time</Title>
+      </Background>
+    );
+  }
+}
 
 const mapStateToProps = state => {
   return {
@@ -32,9 +52,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    handleIncrementClick: () => dispatch({ type: 'INCREMENT' }),
-    handleDecrementClick: () => dispatch({ type: 'DECREMENT' })
+    handleIncrementClick: () => dispatch({ type: 'GRAPH_INCREMENT' }),
+    handleDecrementClick: () => dispatch({ type: 'GRAPH_DECREMENT' })
   }
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Component);
+export default connect(mapStateToProps, mapDispatchToProps)(Graph);

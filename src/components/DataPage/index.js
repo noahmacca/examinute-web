@@ -17,14 +17,17 @@ const Title = styled.div`
   margin-bottom: 20px;
 `;
 
-const Component = ({ count, handleIncrementClick, handleDecrementClick }) => (
-  <BorderBackground>
-    <Title>Super cool time project {count}</Title>
-    <button onClick={handleDecrementClick}>Down</button>
-    <button onClick={handleIncrementClick}>Up</button>
-    <Graph />
-  </BorderBackground>
-);
+const Component = ({ count, handleIncrementClick, handleDecrementClick }) => {
+  console.log(count);
+  return (
+    <BorderBackground>
+      <Title>Super cool time project {count}</Title>
+      <button onClick={handleDecrementClick}>Down</button>
+      <button onClick={handleIncrementClick}>Up</button>
+      <Graph />
+    </BorderBackground>
+  )
+};
 
 const mapStateToProps = state => {
   return {
