@@ -4,21 +4,23 @@ import styled from 'styled-components';
 
 const BorderBackground = styled.div`
   background-color: #dcdde1;
-  min-height: 100vh;
-  font-size: 28px;
+  height: 100vh;
+  font-size: 12px;
   color: #353b48;
   padding: 20px;
 `;
 
-const Button = styled.button`
-  background-color: magenta;
+const Title = styled.div`
+  font-size: 18px;
+  color: blue;
+  font-weight: 200;
+  margin-bottom: 20px;
 `;
-
 
 const Component = ({ count, handleIncrementClick, handleDecrementClick }) => (
   <BorderBackground>
-    <h1>Make those personal goals happen! {count}</h1>
-    <Button onClick={handleDecrementClick}>Up</Button>
+    <Title>Super cool time project {count}</Title>
+    <button onClick={handleDecrementClick}>Up</button>
     <button onClick={handleIncrementClick}>Down</button>
   </BorderBackground>
 );
