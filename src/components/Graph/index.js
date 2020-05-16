@@ -24,10 +24,14 @@ class Graph extends React.Component {
 
   componentDidMount() {
     console.log('mounted');
-    const url = 'http://p01-calendars.icloud.com/published/2/R7z0NY0Ja-eATwYdxvL0Cj5_0suPQs9_NokawvmHwpTuh04vObEvNZuL3-mYKubUqej19L4ZXAETnqZqlGuUb0bkBON4r9c7vUIHp7Ba2S0';
-    fetch(url)
-        .then(res => res.json())
-        .then((data) => {
+    const route = '/published/2/R7z0NY0Ja-eATwYdxvL0Cj5_0suPQs9_NokawvmHwpTuh04vObEvNZuL3-mYKubUqej19L4ZXAETnqZqlGuUb0bkBON4r9c7vUIHp7Ba2S0';
+    fetch(route)
+    .then(res => {
+      console.log('res');
+      console.log(res);
+      res.json()
+    })
+    .then((data) => {
           console.log(data);
           this.setState({ contacts: data })
         })
