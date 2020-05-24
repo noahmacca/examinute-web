@@ -24,7 +24,10 @@ const Component = ({ count, handleIncrementClick, handleDecrementClick }) => {
       <Title>Super cool time project {count}</Title>
       <button onClick={handleDecrementClick}>Down</button>
       <button onClick={handleIncrementClick}>Up</button>
-      <Graph />
+      <Graph
+        title='Hello'
+        data={[1, 2, 3]}
+      />
     </BorderBackground>
   )
 };

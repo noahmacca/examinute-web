@@ -19,27 +19,27 @@ const Title = styled.div`
 class Graph extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {date: new Date()}
+    this.state = { date: new Date() }
   }
 
   componentDidMount() {
     console.log('mounted');
     const route = '/published/2/R7z0NY0Ja-eATwYdxvL0Cj5_0suPQs9_NokawvmHwpTuh04vObEvNZuL3-mYKubUqej19L4ZXAETnqZqlGuUb0bkBON4r9c7vUIHp7Ba2S0';
     fetch(route)
-    .then(res => {
-      console.log('res');
-      console.log(res);
-      res.json()
-    })
-    .then((data) => {
-          console.log(data);
-          this.setState({ contacts: data })
-        })
-        .catch(console.log)
+      .then(res => {
+        console.log('res');
+        console.log(res);
+        res.json()
+      })
+      .then((data) => {
+        console.log(data);
+        this.setState({ contacts: data })
+      })
+      .catch(console.log)
   }
 
   render() {
-    console.log('doing it', this.state.date.toLocaleDateString());
+    console.log('EMILY: ', this.props)
     return (
       <Background>
         <Title>Graph 1: My data over time</Title>
