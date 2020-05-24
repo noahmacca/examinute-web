@@ -24,22 +24,28 @@ class Graph extends React.Component {
 
   componentDidMount() {
     console.log('mounted');
-    const route = '/published/2/R7z0NY0Ja-eATwYdxvL0Cj5_0suPQs9_NokawvmHwpTuh04vObEvNZuL3-mYKubUqej19L4ZXAETnqZqlGuUb0bkBON4r9c7vUIHp7Ba2S0';
+    this.fetchRoute('/published/2/R7z0NY0Ja-eATwYdxvL0Cj5_0suPQs9_NokawvmHwpTuh04vObEvNZuL3-mYKubUqej19L4ZXAETnqZqlGuUb0bkBON4r9c7vUIHp7Ba2S0');
+    // this.fetchRoute('https://p01-calendars.icloud.com/published/published/2/R7z0NY0Ja-eATwYdxvL0Cj5_0suPQs9_NokawvmHwpTuh04vObEvNZuL3-mYKubUqej19L4ZXAETnqZqlGuUb0bkBON4r9c7vUIHp7Ba2S0');
+    this.fetchRoute('/v1/status.txt');
+    // this.fetchRoute('http://api.darksky.net/v1/status.txt');
+  }
+
+  fetchRoute(route) {
+    console.log('fetching ', route);
     fetch(route)
       .then(res => {
         console.log('res');
         console.log(res);
-        res.json()
+        return res.text()
       })
-      .then((data) => {
-        console.log(data);
-        this.setState({ contacts: data })
+      .then((text) => {
+        console.log(text);
+        this.setState({ data: text })
       })
       .catch(console.log)
   }
 
   render() {
-    console.log('EMILY: ', this.props)
     return (
       <Background>
         <Title>Graph 1: My data over time</Title>
