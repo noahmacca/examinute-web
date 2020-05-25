@@ -1,10 +1,11 @@
 import { connect } from 'react-redux';
 import React from 'react';
 import styled from 'styled-components';
+import Sparkline from '../Sparkline';
 
 const Background = styled.div`
   margin: 20px 0;
-  background-color: magenta;
+  background-color: white;
   width: 700px;
   height: 300px;
   padding: 10px;
@@ -16,17 +17,68 @@ const Title = styled.div`
   margin-bottom: 20px;
 `;
 
+const testData = [
+  {
+    "id": "japan",
+    "color": "hsl(186, 70%, 50%)",
+    "data": [
+      {
+        "x": 1,
+        "y": 130
+      },
+      {
+        "x": 3,
+        "y": 240
+      },
+      {
+        "x": 50,
+        "y": 216
+      },
+      {
+        "x": 51,
+        "y": 216
+      },
+      {
+        "x": 52,
+        "y": 216
+      }
+    ]
+  },
+  {
+    "id": "nomo",
+    "color": "hsl(120, 70%, 50%)",
+    "data": [
+      {
+        "x": 1,
+        "y": 330
+      },
+      {
+        "x": 3,
+        "y": 340
+      },
+      {
+        "x": 50,
+        "y": 316
+      },
+      {
+        "x": 51,
+        "y": 316
+      },
+    ]
+  }
+]
+
 class Graph extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { date: new Date() }
+    const selectedCategory = 'Build: Generic Forward'
+    this.state = { testData, selectedCategory }
   }
 
   componentDidMount() {
     console.log('mounted');
-    this.fetchRoute('/published/2/R7z0NY0Ja-eATwYdxvL0Cj5_0suPQs9_NokawvmHwpTuh04vObEvNZuL3-mYKubUqej19L4ZXAETnqZqlGuUb0bkBON4r9c7vUIHp7Ba2S0');
-    // this.fetchRoute('https://p01-calendars.icloud.com/published/published/2/R7z0NY0Ja-eATwYdxvL0Cj5_0suPQs9_NokawvmHwpTuh04vObEvNZuL3-mYKubUqej19L4ZXAETnqZqlGuUb0bkBON4r9c7vUIHp7Ba2S0');
-    this.fetchRoute('/v1/status.txt');
+    this.fetchRoute('/api/v1/getcal?user_id=NOAH')
+
     // this.fetchRoute('http://api.darksky.net/v1/status.txt');
   }
 
@@ -36,19 +88,58 @@ class Graph extends React.Component {
       .then(res => {
         console.log('res');
         console.log(res);
-        return res.text()
+        return res.json()
       })
-      .then((text) => {
-        console.log(text);
-        this.setState({ data: text })
+      .then((res) => {
+        console.log(res);
+        this.setState({ rawData: res }, this.transformData)
       })
       .catch(console.log)
   }
 
+  transformData(data) {
+    console.log('transformData');
+    console.log(this.state);
+    const lastMonthPoints = this.state.rawData
+      .filter((i) => i.is_current_or_last_month === 'Last Month' && i.name === this.state.selectedCategory)
+      .map(i => (
+        {
+          x: i.day_of_month,
+          y: i.cumulative_hours_in_month
+        }
+      ));
+
+    const currentMonthPoints = this.state.rawData
+      .filter((i) => i.is_current_or_last_month === 'This Month' && i.name === this.state.selectedCategory)
+      .map(i => (
+        {
+          x: i.day_of_month,
+          y: i.cumulative_hours_in_month
+        }
+      ));
+    this.setState({
+      testData: [
+        {
+          id: 'lastMonth',
+          color: 'hsl(186, 70%, 50%)',
+          data: lastMonthPoints
+        },
+        {
+          id: 'currentMonth',
+          color: 'hsl(50, 70%, 50%)',
+          data: currentMonthPoints
+        }
+      ]
+    })
+  }
+
   render() {
+    console.log('render');
+    console.log(this.state);
     return (
       <Background>
         <Title>Graph 1: My data over time</Title>
+        <Sparkline data={this.state.testData} />
       </Background>
     );
   }
