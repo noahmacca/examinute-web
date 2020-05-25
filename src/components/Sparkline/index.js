@@ -24,8 +24,6 @@ class Sparkline extends React.Component {
   }
 
   render() {
-    console.log('Sparkline');
-    console.log(this.props.data);
     return (
       <GraphContainer>
         <GraphTitle>{this.props.topic}</GraphTitle>

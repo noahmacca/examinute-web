@@ -5,7 +5,6 @@ import Sparkline from '../Sparkline';
 import testResp from '../../sample_resp.json';
 
 const Background = styled.div`
-  margin: 20px 0;
   background-color: white;
   padding: 10px;
   float: left;
@@ -14,7 +13,8 @@ const Background = styled.div`
 const Title = styled.div`
   font-size: 30px;
   font-weight: 400;
-  margin-bottom: 20px;
+  margin: 30px 0 50px 0;
+  text-align: center;
 `;
 
 class MonthSparklines extends React.Component {
@@ -25,15 +25,16 @@ class MonthSparklines extends React.Component {
       selectedCategory,
       rawData: [],
       transformedDataList: [],
-      debug: true
+      debug: true,
+      filterString: 'personal',
     }
   }
 
   componentDidMount() {
-    this.getCalDataForUser('NOAH', this.state.debug)
+    this.getCalDataForUser('NOAH');
   }
 
-  getCalDataForUser(userId, debug) {
+  getCalDataForUser(userId) {
     const route = `/api/v1/getcal?user_id=${userId}`
     if (!this.state.debug) {
       console.log('fetching', route);
@@ -52,8 +53,13 @@ class MonthSparklines extends React.Component {
   }
 
   transformAllCategories() {
+    console.log('tihs.transformAllCategories');
     const names = this.state.rawData.map(d => d.name)
-    const namesUnique = [...new Set(names)];
+    let namesUnique = [...new Set(names)];
+    if (this.state.filterString) {
+      console.log('filtering by', this.state.filterString);
+      namesUnique = namesUnique.filter(n => n.toLowerCase().includes(this.state.filterString.toLowerCase()));
+    }
     const transformedDataList = namesUnique.map(name => ({
       name: name,
       data: this.transformSingleCategory(name),
@@ -65,7 +71,6 @@ class MonthSparklines extends React.Component {
 
   transformSingleCategory(category) {
     console.log('transformData', category);
-    console.log(this.state);
     const lastMonthPoints = this.state.rawData
       .filter((i) => i.is_current_or_last_month === 'Last Month' && i.name === category)
       .map(i => (
@@ -108,12 +113,25 @@ class MonthSparklines extends React.Component {
     ))
   }
 
+  handleChange = (e) => {
+    // TODO comma delimited
+    console.log('handleChange', e.target.value);
+    this.setState({
+      filterString: e.target.value
+    }, this.transformAllCategories);
+  }
+
   render() {
-    console.log('render');
-    console.log(this.state);
+    // This is called whenever props or state is changed.
     return (
       <Background>
         <Title>Examinute</Title>
+        <form>
+          <label>
+            Filter:
+            <input type="text" value={this.state.filterString} onChange={this.handleChange} />
+          </label>
+        </form>
         {this.state.transformedDataList.length > 0 ?
           this.renderSparkLines() :
           <div>Loading</div>
