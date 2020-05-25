@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 import React from 'react';
 import styled from 'styled-components';
 import Sparkline from '../Sparkline';
+import testResp from '../../sample_resp.json';
 
 const Background = styled.div`
   margin: 20px 0;
@@ -17,87 +18,41 @@ const Title = styled.div`
   margin-bottom: 20px;
 `;
 
-const testData = [
-  {
-    "id": "japan",
-    "color": "hsl(186, 70%, 50%)",
-    "data": [
-      {
-        "x": 1,
-        "y": 130
-      },
-      {
-        "x": 3,
-        "y": 240
-      },
-      {
-        "x": 50,
-        "y": 216
-      },
-      {
-        "x": 51,
-        "y": 216
-      },
-      {
-        "x": 52,
-        "y": 216
-      }
-    ]
-  },
-  {
-    "id": "nomo",
-    "color": "hsl(120, 70%, 50%)",
-    "data": [
-      {
-        "x": 1,
-        "y": 330
-      },
-      {
-        "x": 3,
-        "y": 340
-      },
-      {
-        "x": 50,
-        "y": 316
-      },
-      {
-        "x": 51,
-        "y": 316
-      },
-    ]
-  }
-]
-
-class Graph extends React.Component {
+class MonthSparklines extends React.Component {
   constructor(props) {
     super(props);
     const selectedCategory = 'Build: Generic Forward'
-    this.state = { testData, selectedCategory }
+    this.state = {
+      selectedCategory,
+      rawData: [],
+      debug: true
+    }
   }
 
   componentDidMount() {
-    console.log('mounted');
-    this.fetchRoute('/api/v1/getcal?user_id=NOAH')
-
-    // this.fetchRoute('http://api.darksky.net/v1/status.txt');
+    if (!this.state.debug) {
+      console.log('not debug mode');
+      this.getCalDataForUser('NOAH')
+    } else {
+      console.log('debug mode');
+      this.setState({ rawData: testResp }, this.transformData)
+    }
   }
 
-  fetchRoute(route) {
-    console.log('fetching ', route);
+  getCalDataForUser(userId) {
+    const route = `/api/v1/getcal?user_id=${userId}`
+    console.log('fetching', route);
     fetch(route)
-      .then(res => {
-        console.log('res');
-        console.log(res);
-        return res.json()
-      })
+      .then(res => res.json())
       .then((res) => {
-        console.log(res);
+        console.log('got response for route', route);
+        console.log(res)
         this.setState({ rawData: res }, this.transformData)
       })
       .catch(console.log)
   }
 
-  transformData(data) {
+  transformData() {
     console.log('transformData');
     console.log(this.state);
     const lastMonthPoints = this.state.rawData
@@ -139,7 +94,11 @@ class Graph extends React.Component {
     return (
       <Background>
         <Title>Graph 1: My data over time</Title>
-        <Sparkline data={this.state.testData} />
+        {/*  */}
+        {this.state.rawData.length > 0 ? 
+          <Sparkline data={this.state.testData} /> :
+          <div>Loading</div>
+        }
       </Background>
     );
   }
@@ -158,4 +117,4 @@ const mapDispatchToProps = dispatch => {
   }
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Graph);
+export default connect(mapStateToProps, mapDispatchToProps)(MonthSparklines);

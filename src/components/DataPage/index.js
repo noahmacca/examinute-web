@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import React from 'react';
 import styled from 'styled-components';
-import Graph from '../Graph';
+import MonthSparklines from '../MonthSparklines';
 
 const BorderBackground = styled.div`
   background-color: #dcdde1;
@@ -23,7 +23,7 @@ const Component = ({ count, handleIncrementClick, handleDecrementClick }) => {
       <Title>Super cool time project {count}</Title>
       <button onClick={handleDecrementClick}>Down</button>
       <button onClick={handleIncrementClick}>Up</button>
-      <Graph />
+      <MonthSparklines />
     </BorderBackground>
   )
 };
