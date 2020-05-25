@@ -7,13 +7,12 @@ import testResp from '../../sample_resp.json';
 const Background = styled.div`
   margin: 20px 0;
   background-color: white;
-  width: 700px;
-  height: 300px;
   padding: 10px;
+  float: left;
 `;
 
 const Title = styled.div`
-  font-size: 14px;
+  font-size: 30px;
   font-weight: 400;
   margin-bottom: 20px;
 `;
@@ -25,38 +24,50 @@ class MonthSparklines extends React.Component {
     this.state = {
       selectedCategory,
       rawData: [],
+      transformedDataList: [],
       debug: true
     }
   }
 
   componentDidMount() {
+    this.getCalDataForUser('NOAH', this.state.debug)
+  }
+
+  getCalDataForUser(userId, debug) {
+    const route = `/api/v1/getcal?user_id=${userId}`
     if (!this.state.debug) {
-      console.log('not debug mode');
-      this.getCalDataForUser('NOAH')
+      console.log('fetching', route);
+      fetch(route)
+        .then(res => res.json())
+        .then((res) => {
+          console.log('got response for route', route);
+          console.log(res)
+          this.setState({ rawData: res }, this.transformAllCategories);
+        })
+        .catch(console.log)
     } else {
-      console.log('debug mode');
-      this.setState({ rawData: testResp }, this.transformData)
+      console.log('debug');
+      this.setState({ rawData: testResp }, this.transformAllCategories);
     }
   }
 
-  getCalDataForUser(userId) {
-    const route = `/api/v1/getcal?user_id=${userId}`
-    console.log('fetching', route);
-    fetch(route)
-      .then(res => res.json())
-      .then((res) => {
-        console.log('got response for route', route);
-        console.log(res)
-        this.setState({ rawData: res }, this.transformData)
-      })
-      .catch(console.log)
+  transformAllCategories() {
+    const names = this.state.rawData.map(d => d.name)
+    const namesUnique = [...new Set(names)];
+    const transformedDataList = namesUnique.map(name => ({
+      name: name,
+      data: this.transformSingleCategory(name),
+    }));
+    this.setState({
+      transformedDataList,
+    });
   }
 
-  transformData() {
-    console.log('transformData');
+  transformSingleCategory(category) {
+    console.log('transformData', category);
     console.log(this.state);
     const lastMonthPoints = this.state.rawData
-      .filter((i) => i.is_current_or_last_month === 'Last Month' && i.name === this.state.selectedCategory)
+      .filter((i) => i.is_current_or_last_month === 'Last Month' && i.name === category)
       .map(i => (
         {
           x: i.day_of_month,
@@ -65,27 +76,36 @@ class MonthSparklines extends React.Component {
       ));
 
     const currentMonthPoints = this.state.rawData
-      .filter((i) => i.is_current_or_last_month === 'This Month' && i.name === this.state.selectedCategory)
+      .filter((i) => i.is_current_or_last_month === 'This Month' && i.name === category)
       .map(i => (
         {
           x: i.day_of_month,
           y: i.cumulative_hours_in_month
         }
       ));
-    this.setState({
-      testData: [
-        {
-          id: 'lastMonth',
-          color: 'hsl(186, 70%, 50%)',
-          data: lastMonthPoints
-        },
-        {
-          id: 'currentMonth',
-          color: 'hsl(50, 70%, 50%)',
-          data: currentMonthPoints
-        }
-      ]
-    })
+
+    return [
+      {
+        id: 'lastMonth',
+        color: '#bdc3c7',
+        data: lastMonthPoints
+      },
+      {
+        id: 'currentMonth',
+        color: '#e74c3c',
+        data: currentMonthPoints
+      }
+    ]
+  }
+
+  renderSparkLines() {
+    return this.state.transformedDataList.map(i => (
+      <Sparkline
+        key={`sparkline-${i.name}`}
+        topic={i.name}
+        data={i.data}
+      />
+    ))
   }
 
   render() {
@@ -93,10 +113,9 @@ class MonthSparklines extends React.Component {
     console.log(this.state);
     return (
       <Background>
-        <Title>Graph 1: My data over time</Title>
-        {/*  */}
-        {this.state.rawData.length > 0 ? 
-          <Sparkline data={this.state.testData} /> :
+        <Title>Examinute</Title>
+        {this.state.transformedDataList.length > 0 ?
+          this.renderSparkLines() :
           <div>Loading</div>
         }
       </Background>
