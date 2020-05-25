@@ -5,5 +5,5 @@ module.exports = function (app) {
         target: 'http://p01-calendars.icloud.com',
         changeOrigin: true,
     }));
-    app.use('/v1', createProxyMiddleware({ target: 'http://api.darksky.net/', changeOrigin: true }));
+    app.use('/api', createProxyMiddleware({ target: 'http://127.0.0.1:5000/', changeOrigin: true }));
 }
