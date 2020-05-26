@@ -1,7 +1,6 @@
-import { connect } from 'react-redux';
 import React from 'react';
 import styled from 'styled-components';
-import Graph from '../Graph';
+import MonthSparklines from '../MonthSparklines';
 
 const BorderBackground = styled.div`
   background-color: #dcdde1;
@@ -11,38 +10,12 @@ const BorderBackground = styled.div`
   padding: 20px;
 `;
 
-const Title = styled.div`
-  font-size: 18px;
-  font-weight: 200;
-  margin-bottom: 20px;
-`;
-
 const Component = ({ count, handleIncrementClick, handleDecrementClick }) => {
-  console.log(count);
   return (
     <BorderBackground>
-      <Title>Super cool time project {count}</Title>
-      <button onClick={handleDecrementClick}>Down</button>
-      <button onClick={handleIncrementClick}>Up</button>
-      <Graph
-        title='Hello'
-        data={[1, 2, 3]}
-      />
+      <MonthSparklines />
     </BorderBackground>
   )
 };
 
-const mapStateToProps = state => {
-  return {
-    count: state
-  };
-};
-
-const mapDispatchToProps = dispatch => {
-  return {
-    handleIncrementClick: () => dispatch({ type: 'INCREMENT' }),
-    handleDecrementClick: () => dispatch({ type: 'DECREMENT' })
-  }
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Component);
+export default Component;
