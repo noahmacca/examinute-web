@@ -42,16 +42,17 @@ class MonthSparklines extends React.Component {
       transformedDataList: [],
       debug: false,
       filterString: '',
-      hasLoaded: false
+      hasLoaded: false,
+      userId: 'EMILY'
     }
   }
 
   componentDidMount() {
-    this.getCalDataForUser('EMILY');
+    this.getCalDataForUser();
   }
 
-  getCalDataForUser(userId) {
-    const route = `/api/v1/getcal?user_id=${userId}`
+  getCalDataForUser() {
+    const route = `/api/v1/getcal?user_id=${this.state.userId}`
     if (!this.state.debug) {
       console.log('fetching', route);
       fetch(route)
@@ -59,9 +60,11 @@ class MonthSparklines extends React.Component {
         .then((res) => {
           console.log('got response for route', route);
           console.log(res)
-          this.setState({ hasLoaded: true })
-          this.setState({ categories: res.categories });
-          this.setState({ sparklineUserData: res.sparkline_user_data }, this.transformAllCategories);
+          this.setState({
+            hasLoaded: true,
+            categories: res.categories,
+            sparklineUserData: res.sparkline_user_data
+          }, this.transformAllCategories);
         })
         .catch(console.log)
     } else {
@@ -90,7 +93,7 @@ class MonthSparklines extends React.Component {
           aMaxY = d.y
         }
       })
-      
+
       const bData = b.data.filter(d => d.id === 'currentMonth')[0]
       bData.data.forEach(d => {
         if (d.y > bMaxY) {
@@ -107,7 +110,7 @@ class MonthSparklines extends React.Component {
   }
 
   round(number, precision) {
-    return Math.round(number*(10**precision))/(10**precision)
+    return Math.round(number * (10 ** precision)) / (10 ** precision)
   }
 
   transformSingleCategory(category) {
@@ -129,18 +132,18 @@ class MonthSparklines extends React.Component {
           y: this.round(i.cumulative_hours_in_month, 1)
         }
       ));
-      const res = [
-        {
-          id: 'lastMonth',
-          color: '#bdc3c7',
-          data: lastMonthPoints
-        },
-        {
-          id: 'currentMonth',
-          color: '#e74c3c',
-          data: currentMonthPoints
-        }
-      ]
+    const res = [
+      {
+        id: 'lastMonth',
+        color: '#bdc3c7',
+        data: lastMonthPoints
+      },
+      {
+        id: 'currentMonth',
+        color: '#e74c3c',
+        data: currentMonthPoints
+      }
+    ]
 
     // Get goal for category
     const cats = this.state.categories.filter(j => j.name === category)
@@ -178,7 +181,7 @@ class MonthSparklines extends React.Component {
     ));
   }
 
-  handleChange = (e) => {
+  handleChangeFilterBar = (e) => {
     // TODO comma delimited
     console.log('handleChange', e.target.value);
     this.setState({
@@ -186,13 +189,27 @@ class MonthSparklines extends React.Component {
     }, this.transformAllCategories);
   }
 
+  handleChangeUserPicker = (e) => {
+    console.log('user change', e.target.value);
+    this.setState({
+      userId: e.target.value,
+      hasLoaded: false,
+      sparklineUserData: [],
+      transformedDataList: []
+    }, this.getCalDataForUser);
+  }
+
   render() {
     // This is called whenever props or state is changed.
     return (
       <Background>
         <Title>Examinute</Title>
+        <select value={this.state.userId} onChange={this.handleChangeUserPicker}>
+          <option value="EMILY">Emily</option>
+          <option value="NOAH">Noah</option>
+        </select>
         <SearchInput
-          type="text" value={this.state.filterString} onChange={this.handleChange}
+          type="text" value={this.state.filterString} onChange={this.handleChangeFilterBar}
         />
         {this.state.transformedDataList.length > 0 ?
           this.renderSparkLines() :
