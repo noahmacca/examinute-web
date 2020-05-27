@@ -9,6 +9,8 @@ const INTERVAL_CONSTANTS = {
     MONTHLY: 'monthly'
 }
 
+const REFRESH_INTERVAL_MS = 5 * 60 * 1000 // 5 min
+
 const Background = styled.div`
   background-color: white;
   padding: 10px;
@@ -21,6 +23,12 @@ const Title = styled.div`
   font-weight: 400;
   margin: 30px 0 50px 0;
   text-align: center;
+`;
+
+const Subtitle = styled.div`
+  font-size: 15px;
+  font-weight: 400;
+  margin: 8px
 `;
 
 const SearchInput = styled.input`
@@ -65,7 +73,8 @@ class MonthSparklines extends React.Component {
             debug: false,
             filterString: '',
             hasLoaded: false,
-            selectedUserId: 'Emily'
+            selectedUserId: 'Emily',
+            lastUpdatedTime: ''
         }
     }
 
@@ -85,6 +94,10 @@ class MonthSparklines extends React.Component {
         }
     }
 
+    componentWillUnmount() {
+        clearTimeout(this.intervalId);
+      }
+
     getCalDataForUser() {
         const route = `/api/v1/getcal?user_id=${this.state.selectedUserId}`
         if (!this.state.debug) {
@@ -98,8 +111,10 @@ class MonthSparklines extends React.Component {
                         hasLoaded: true,
                         categories: res.categories,
                         sparklineUserData: res.sparkline_user_data,
-                        userIds: res.user_ids
+                        userIds: res.user_ids,
+                        lastUpdatedTime: new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })
                     }, this.transformAllCategories);
+                    this.intervalId = setTimeout(this.getCalDataForUser.bind(this), REFRESH_INTERVAL_MS);
                 })
                 .catch(console.log)
         } else {
@@ -249,6 +264,7 @@ class MonthSparklines extends React.Component {
         return (
             <Background>
                 <Title>Examinute</Title>
+                <Subtitle>Last Updated {this.state.lastUpdatedTime}</Subtitle>
                 <SearchInput
                     type="text" value={this.state.filterString} onChange={this.handleChangeFilterBar}
                 />
