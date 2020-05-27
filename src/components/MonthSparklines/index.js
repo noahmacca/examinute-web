@@ -41,10 +41,9 @@ const ModeDropdown = styled.select`
 	box-sizing: border-box;
 	margin: 6px;
 	border: 1px solid #aaa;
-	// box-shadow: 0 1px 0 1px rgba(0,0,0,.04);
 	border-radius: .5em;
-	// appearance: none;
-	background-color: #fff;
+  background-color: #fff;
+  outline: none;
 `
 
 
@@ -57,19 +56,32 @@ class MonthSparklines extends React.Component {
       sparklineUserData: {},
       interval: 'weekly',
       transformedDataList: [],
+      userIds: [],
       debug: false,
       filterString: '',
       hasLoaded: false,
-      userId: 'EMILY'
+      selectedUserId: 'Emily'
     }
   }
 
   componentDidMount() {
-    this.getCalDataForUser();
+    // TODO: There's a better way to get query params with router (?)
+    let queryParams = new URLSearchParams(window.location.search);
+    let userId = queryParams.get('user_id');
+
+    // TODO: Fetch valid user ids from tomatojuicer instead of hardcoding
+    const validUserIds = ['Emily', 'Noah'];
+    if (userId && validUserIds.includes(userId)) {
+      // setState() does not immediately mutate; it creates a pending state transition
+      // for the function to be executed after the state change occurs, pass it in as a callback.
+      this.setState({ selectedUserId: userId }, this.getCalDataForUser);
+    } else {
+      this.getCalDataForUser();
+    }
   }
 
   getCalDataForUser() {
-    const route = `/api/v1/getcal?user_id=${this.state.userId}`
+    const route = `/api/v1/getcal?user_id=${this.state.selectedUserId}`
     if (!this.state.debug) {
       console.log('fetching', route);
       fetch(route)
@@ -80,7 +92,8 @@ class MonthSparklines extends React.Component {
           this.setState({
             hasLoaded: true,
             categories: res.categories,
-            sparklineUserData: res.sparkline_user_data
+            sparklineUserData: res.sparkline_user_data,
+            userIds: res.user_ids
           }, this.transformAllCategories);
         })
         .catch(console.log)
@@ -172,7 +185,7 @@ class MonthSparklines extends React.Component {
       const nDays = this.state.interval === 'weekly' ? 7 : 30;
 
       const goalPoints = [];
-      for (let i = currentIntervalPoints[0].x - 1; i < nDays; i++) {
+      for (let i = currentIntervalPoints[0].x - 1; i <= nDays; i++) {
         const y = (i - currentIntervalPoints[0].x) * goalHrsWeek / 7.0
         goalPoints.push({
           x: i,
@@ -213,7 +226,7 @@ class MonthSparklines extends React.Component {
   handleChangeUserPicker = (e) => {
     console.log('user change', e.target.value);
     this.setState({
-      userId: e.target.value,
+      selectedUserId: e.target.value,
       hasLoaded: false,
       sparklineUserData: {},
       transformedDataList: []
@@ -228,29 +241,27 @@ class MonthSparklines extends React.Component {
 
   render() {
     // This is called whenever props or state is changed.
-    console.log('hello');
-    console.log(this.props.history);
     return (
       <Background>
         <Title>Examinute</Title>
         <SearchInput
           type="text" value={this.state.filterString} onChange={this.handleChangeFilterBar}
         />
-        <ModeDropdown value={this.state.userId} onChange={this.handleChangeUserPicker}>
-          <option value="EMILY">Emily</option>
-          <option value="NOAH">Noah</option>
+        <ModeDropdown value={this.state.selectedUserId} onChange={this.handleChangeUserPicker}>
+          { this.state.userIds.map(e => <option key={`option-${e}`} value={e}>{e}</option>) }
         </ModeDropdown>
         <ModeDropdown value={this.state.interval} onChange={this.handleChangeIntervalPicker}>
           <option value="weekly">Weekly</option>
           <option value="monthly">Monthly</option>
         </ModeDropdown>
-        {this.state.transformedDataList.length > 0 ?
-          this.renderSparkLines() :
-          this.state.hasLoaded ?
-            <HelperText>No Results :(</HelperText> :
-            <HelperText>Loading...</HelperText>
+        {
+          this.state.transformedDataList.length > 0 ?
+            this.renderSparkLines() :
+            this.state.hasLoaded ?
+              <HelperText>No Results :(</HelperText> :
+              <HelperText>Loading...</HelperText>
         }
-      </Background>
+      </Background >
     );
   }
 }
