@@ -23,6 +23,12 @@ const Title = styled.div`
   text-align: center;
 `;
 
+const Subtitle = styled.div`
+  font-size: 15px;
+  font-weight: 400;
+  margin: 8px
+`;
+
 const SearchInput = styled.input`
   display: block;
   fonst-size: 10px;
@@ -65,7 +71,8 @@ class MonthSparklines extends React.Component {
             debug: false,
             filterString: '',
             hasLoaded: false,
-            selectedUserId: 'Emily'
+            selectedUserId: 'Emily',
+            lastUpdatedTime: ''
         }
     }
 
@@ -85,6 +92,10 @@ class MonthSparklines extends React.Component {
         }
     }
 
+    componentWillUnmount() {
+        clearTimeout(this.intervalID);
+      }
+
     getCalDataForUser() {
         const route = `/api/v1/getcal?user_id=${this.state.selectedUserId}`
         if (!this.state.debug) {
@@ -98,8 +109,10 @@ class MonthSparklines extends React.Component {
                         hasLoaded: true,
                         categories: res.categories,
                         sparklineUserData: res.sparkline_user_data,
-                        userIds: res.user_ids
+                        userIds: res.user_ids,
+                        lastUpdatedTime: new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })
                     }, this.transformAllCategories);
+                    this.intervalID = setTimeout(this.getCalDataForUser.bind(this), 5 * 60 * 1000);
                 })
                 .catch(console.log)
         } else {
@@ -249,6 +262,7 @@ class MonthSparklines extends React.Component {
         return (
             <Background>
                 <Title>Examinute</Title>
+                <Subtitle>Last Updated {this.state.lastUpdatedTime}</Subtitle>
                 <SearchInput
                     type="text" value={this.state.filterString} onChange={this.handleChangeFilterBar}
                 />
