@@ -39,6 +39,7 @@ class MonthSparklines extends React.Component {
       selectedCategory,
       sparklineUserData: [],
       transformedDataList: [],
+      timeframe: 'Week'
       userIds: [],
       debug: false,
       filterString: '',
@@ -57,10 +58,7 @@ class MonthSparklines extends React.Component {
     if (userId && validUserIds.includes(userId)) {
       // setState() does not immediately mutate; it creates a pending state transition
       // for the function to be executed after the state change occurs, pass it in as a callback.
-      this.setState({ selectedUserId: userId }, function () {
-        console.log('user_id from query param is ', this.state.selectedUserId);
-        this.getCalDataForUser();
-      });
+      this.setState({ selectedUserId: userId }, this.getCalDataForUser);
     } else {
       this.getCalDataForUser();
     }
@@ -89,7 +87,6 @@ class MonthSparklines extends React.Component {
   }
 
   transformAllCategories() {
-    console.log('tihs.transformAllCategories');
     const names = this.state.sparklineUserData.map(d => d.name)
     let namesUnique = [...new Set(names)];
     if (this.state.filterString) {
