@@ -20,15 +20,31 @@ const Title = styled.div`
 
 const SearchInput = styled.input`
   display: block;
-  margin-left: auto;
-  margin-right: auto;
+  fonst-size: 10px;
   width: 250px;
-  margin-bottom: 15px;
+  margin: 8px;
 `
 
 const HelperText = styled.div`
   font-size: 18px;
   margin: 30px;
+`
+
+const ModeDropdown = styled.select`
+  display: block;
+  font-size: 11px;
+  width: 150px;
+	font-family: sans-serif;
+	font-weight: 700;
+	color: #444;
+	padding: .6em 1.4em .5em .8em;
+	box-sizing: border-box;
+	margin: 6px;
+	border: 1px solid #aaa;
+	// box-shadow: 0 1px 0 1px rgba(0,0,0,.04);
+	border-radius: .5em;
+	// appearance: none;
+	background-color: #fff;
 `
 
 
@@ -175,9 +191,11 @@ class MonthSparklines extends React.Component {
   }
 
   renderSparkLines() {
+    const intervalLabel = this.state.interval === 'weekly' ? "Week" : "Month"
     return this.state.transformedDataList.map(i => (
       <Sparkline
         key={`sparkline-${i.name}`}
+        intervalLabel={intervalLabel}
         topic={i.name}
         data={i.data}
       />
@@ -202,18 +220,30 @@ class MonthSparklines extends React.Component {
     }, this.getCalDataForUser);
   }
 
+  handleChangeIntervalPicker = (e) => {
+    this.setState({
+      interval: e.target.value
+    }, this.transformAllCategories);
+  }
+
   render() {
     // This is called whenever props or state is changed.
+    console.log('hello');
+    console.log(this.props.history);
     return (
       <Background>
         <Title>Examinute</Title>
-        <select value={this.state.userId} onChange={this.handleChangeUserPicker}>
-          <option value="EMILY">Emily</option>
-          <option value="NOAH">Noah</option>
-        </select>
         <SearchInput
           type="text" value={this.state.filterString} onChange={this.handleChangeFilterBar}
         />
+        <ModeDropdown value={this.state.userId} onChange={this.handleChangeUserPicker}>
+          <option value="EMILY">Emily</option>
+          <option value="NOAH">Noah</option>
+        </ModeDropdown>
+        <ModeDropdown value={this.state.interval} onChange={this.handleChangeIntervalPicker}>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+        </ModeDropdown>
         {this.state.transformedDataList.length > 0 ?
           this.renderSparkLines() :
           this.state.hasLoaded ?

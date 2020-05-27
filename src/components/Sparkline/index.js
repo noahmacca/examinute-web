@@ -74,7 +74,7 @@ class Sparkline extends React.Component {
     return (
       <StatsRow>
         <StatElement>
-          <StatLabel>Current Month</StatLabel>
+          <StatLabel>Current {this.props.intervalLabel}</StatLabel>
           <StatVal>{`${totalHrsCurrentMonth.toFixed(1)} hr`}</StatVal>
         </StatElement>
         {
