@@ -12,7 +12,7 @@ const GraphTitle = styled.div`
   font-size: 12px;
   font-weight: 600;
   text-align: center;
-  margin-bottom: 5px;
+  margin-bottom: 7px;
 `;
 
 const PlotContainer = styled.div`
@@ -46,7 +46,7 @@ class Sparkline extends React.Component {
   }
 
   renderStats() {
-    const currentMonth = this.props.data.filter(i => i.id === 'currentMonth')
+    const currentMonth = this.props.data.filter(i => i.id === 'currentInterval')
     const goal = this.props.data.filter(i => i.id === 'goal')
     let totalHrsCurrentMonth = 0;
     let diffFromGoal = 0;
@@ -55,7 +55,6 @@ class Sparkline extends React.Component {
     if (currentMonth.length > 0) {
       // Get total from last point
       const currentMonthCoords = currentMonth[0].data
-      console.log(currentMonthCoords);
       const lastDataCurrent = currentMonthCoords[currentMonthCoords.length - 1]
       totalHrsCurrentMonth = lastDataCurrent.y
 

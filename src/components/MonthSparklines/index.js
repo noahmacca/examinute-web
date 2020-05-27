@@ -38,7 +38,8 @@ class MonthSparklines extends React.Component {
     const selectedCategory = 'Build: Generic Forward'
     this.state = {
       selectedCategory,
-      sparklineUserData: [],
+      sparklineUserData: {},
+      interval: 'weekly',
       transformedDataList: [],
       debug: false,
       filterString: '',
@@ -73,8 +74,7 @@ class MonthSparklines extends React.Component {
   }
 
   transformAllCategories() {
-    console.log('tihs.transformAllCategories');
-    const names = this.state.sparklineUserData.map(d => d.name)
+    const names = this.state.sparklineUserData[this.state.interval].map(d => d.name)
     let namesUnique = [...new Set(names)];
     if (this.state.filterString) {
       namesUnique = namesUnique.filter(n => n.toLowerCase().includes(this.state.filterString.toLowerCase()));
@@ -87,20 +87,19 @@ class MonthSparklines extends React.Component {
     transformedDataList.sort((a, b) => {
       let aMaxY = 0
       let bMaxY = 0
-      const aData = a.data.filter(d => d.id === 'currentMonth')[0]
+      const aData = a.data.filter(d => d.id === 'currentInterval')[0]
       aData.data.forEach(d => {
         if (d.y > aMaxY) {
           aMaxY = d.y
         }
       })
 
-      const bData = b.data.filter(d => d.id === 'currentMonth')[0]
+      const bData = b.data.filter(d => d.id === 'currentInterval')[0]
       bData.data.forEach(d => {
         if (d.y > bMaxY) {
           bMaxY = d.y
         }
       })
-      console.log(`aMaxY=${aMaxY}, bMaxY=${bMaxY}`);
       return bMaxY - aMaxY
     });
 
@@ -114,34 +113,37 @@ class MonthSparklines extends React.Component {
   }
 
   transformSingleCategory(category) {
-    console.log('transformData', category);
-    const lastMonthPoints = this.state.sparklineUserData
-      .filter((i) => i.is_current_or_last_month === 'Last Month' && i.name === category)
+    const lastIntervalPoints = this.state.sparklineUserData[this.state.interval]
+      .filter((i) => i.is_current_or_last === 'Previous' && i.name === category)
       .map(i => (
         {
-          x: i.day_of_month,
-          y: this.round(i.cumulative_hours_in_month, 1)
+          x: i.day_indexed + 1,
+          y: this.round(i.cumulative_hours, 1)
         }
       ));
 
-    const currentMonthPoints = this.state.sparklineUserData
-      .filter((i) => i.is_current_or_last_month === 'This Month' && i.name === category)
+    const currentIntervalPoints = this.state.sparklineUserData[this.state.interval]
+      .filter((i) => i.is_current_or_last === 'Current' && i.name === category)
       .map(i => (
         {
-          x: i.day_of_month,
-          y: this.round(i.cumulative_hours_in_month, 1)
+          x: i.day_indexed + 1,
+          y: this.round(i.cumulative_hours, 1)
         }
       ));
+
+    lastIntervalPoints.unshift({ x: 0, y: 0 });
+    currentIntervalPoints.unshift({ x: 0, y: 0 });
+
     const res = [
       {
-        id: 'lastMonth',
-        color: '#bdc3c7',
-        data: lastMonthPoints
+        id: 'lastInterval',
+        color: '#fae8c7',
+        data: lastIntervalPoints
       },
       {
-        id: 'currentMonth',
+        id: 'currentInterval',
         color: '#e74c3c',
-        data: currentMonthPoints
+        data: currentIntervalPoints
       }
     ]
 
@@ -151,10 +153,11 @@ class MonthSparklines extends React.Component {
     // If we defined a weekly goal for this canonical category, it is first element of this list
     if (cats.length > 0) {
       const goalHrsWeek = cats[0].goal_hrs_week
+      const nDays = this.state.interval === 'weekly' ? 7 : 30;
 
       const goalPoints = [];
-      for (let i = currentMonthPoints[0].x; i < 30; i++) {
-        const y = (i - currentMonthPoints[0].x) * goalHrsWeek / 7.0
+      for (let i = currentIntervalPoints[0].x - 1; i < nDays; i++) {
+        const y = (i - currentIntervalPoints[0].x) * goalHrsWeek / 7.0
         goalPoints.push({
           x: i,
           y: this.round(y, 1)
@@ -194,7 +197,7 @@ class MonthSparklines extends React.Component {
     this.setState({
       userId: e.target.value,
       hasLoaded: false,
-      sparklineUserData: [],
+      sparklineUserData: {},
       transformedDataList: []
     }, this.getCalDataForUser);
   }
