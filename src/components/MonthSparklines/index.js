@@ -9,6 +9,8 @@ const INTERVAL_CONSTANTS = {
     MONTHLY: 'monthly'
 }
 
+const REFRESH_INTERVAL_MS = 5 * 60 * 1000 // 5 min
+
 const Background = styled.div`
   background-color: white;
   padding: 10px;
@@ -93,7 +95,7 @@ class MonthSparklines extends React.Component {
     }
 
     componentWillUnmount() {
-        clearTimeout(this.intervalID);
+        clearTimeout(this.intervalId);
       }
 
     getCalDataForUser() {
@@ -112,7 +114,7 @@ class MonthSparklines extends React.Component {
                         userIds: res.user_ids,
                         lastUpdatedTime: new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })
                     }, this.transformAllCategories);
-                    this.intervalID = setTimeout(this.getCalDataForUser.bind(this), 5 * 60 * 1000);
+                    this.intervalId = setTimeout(this.getCalDataForUser.bind(this), REFRESH_INTERVAL_MS);
                 })
                 .catch(console.log)
         } else {
