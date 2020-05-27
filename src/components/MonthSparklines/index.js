@@ -31,7 +31,6 @@ const HelperText = styled.div`
   margin: 30px;
 `
 
-
 class MonthSparklines extends React.Component {
   constructor(props) {
     super(props);
@@ -40,19 +39,33 @@ class MonthSparklines extends React.Component {
       selectedCategory,
       sparklineUserData: [],
       transformedDataList: [],
+      timeframe: 'Week'
+      userIds: [],
       debug: false,
       filterString: '',
       hasLoaded: false,
-      userId: 'EMILY'
+      selectedUserId: 'Emily'
     }
   }
 
   componentDidMount() {
-    this.getCalDataForUser();
+    // TODO: There's a better way to get query params with router (?)
+    let queryParams = new URLSearchParams( window.location.search);
+    let userId = queryParams.get('user_id');
+
+    // TODO: Fetch valid user ids from tomatojuicer instead of hardcoding
+    const validUserIds = ['Emily', 'Noah'];
+    if (userId && validUserIds.includes(userId)) {
+      // setState() does not immediately mutate; it creates a pending state transition
+      // for the function to be executed after the state change occurs, pass it in as a callback.
+      this.setState({ selectedUserId: userId }, this.getCalDataForUser);
+    } else {
+      this.getCalDataForUser();
+    }
   }
 
   getCalDataForUser() {
-    const route = `/api/v1/getcal?user_id=${this.state.userId}`
+    const route = `/api/v1/getcal?user_id=${this.state.selectedUserId}`
     if (!this.state.debug) {
       console.log('fetching', route);
       fetch(route)
@@ -63,7 +76,8 @@ class MonthSparklines extends React.Component {
           this.setState({
             hasLoaded: true,
             categories: res.categories,
-            sparklineUserData: res.sparkline_user_data
+            sparklineUserData: res.sparkline_user_data,
+            userIds: res.user_ids
           }, this.transformAllCategories);
         })
         .catch(console.log)
@@ -73,7 +87,6 @@ class MonthSparklines extends React.Component {
   }
 
   transformAllCategories() {
-    console.log('tihs.transformAllCategories');
     const names = this.state.sparklineUserData.map(d => d.name)
     let namesUnique = [...new Set(names)];
     if (this.state.filterString) {
@@ -192,7 +205,7 @@ class MonthSparklines extends React.Component {
   handleChangeUserPicker = (e) => {
     console.log('user change', e.target.value);
     this.setState({
-      userId: e.target.value,
+      selectedUserId: e.target.value,
       hasLoaded: false,
       sparklineUserData: [],
       transformedDataList: []
@@ -204,18 +217,22 @@ class MonthSparklines extends React.Component {
     return (
       <Background>
         <Title>Examinute</Title>
-        <select value={this.state.userId} onChange={this.handleChangeUserPicker}>
-          <option value="EMILY">Emily</option>
-          <option value="NOAH">Noah</option>
+        <select value={this.state.selectedUserId} onChange={this.handleChangeUserPicker}>
+          {
+            this.state.hasLoaded
+              ? this.state.userIds.map(e => <option value={e}>{e}</option>)
+              : null
+          }
         </select>
         <SearchInput
           type="text" value={this.state.filterString} onChange={this.handleChangeFilterBar}
         />
-        {this.state.transformedDataList.length > 0 ?
-          this.renderSparkLines() :
-          this.state.hasLoaded ?
-            <HelperText>No Results :(</HelperText> :
-            <HelperText>Loading...</HelperText>
+        {
+          this.state.transformedDataList.length > 0
+            ? this.renderSparkLines()
+            : this.state.hasLoaded
+              ? <HelperText>No Results :(</HelperText>
+              : <HelperText>Loading...</HelperText>
         }
       </Background>
     );
